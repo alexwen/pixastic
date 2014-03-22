@@ -3,6 +3,13 @@
  * Copyright (c) 2008 Jacob Seidelin, jseidelin@nihilogic.dk, http://blog.nihilogic.dk/
  * License: [http://www.pixastic.com/lib/license.txt]
  */
+ 
+/*
+ * Modified by gormonn
+ * Color overlay on the image with an alpha channel.
+ * Example, сhange the color of ribbons: http://wot.uzerbar.ru/
+ * mail: gormonn@rambler.ru
+ */
 
 Pixastic.Actions.blend = {
 
@@ -28,7 +35,9 @@ Pixastic.Actions.blend = {
 			otherCanvas.width = params.canvas.width;
 			otherCanvas.height = params.canvas.height;
 			var otherCtx = otherCanvas.getContext("2d");
-			otherCtx.drawImage(image,0,0);
+			//otherCtx.drawImage(image,0,0);
+				otherCtx.fillStyle = image;//собственно цвет заливки в формате hex #FFA500				
+				otherCtx.fillRect(0, 0, otherCanvas.width, otherCanvas.height);//моё дополнение - создаем холст по размерам оригинальной картинки
 
 			var params2 = {canvas:otherCanvas,options:params.options};
 			var data2 = Pixastic.prepareData(params2);
@@ -42,15 +51,22 @@ Pixastic.Actions.blend = {
 			var r3, g3, b3;
 			var r4, g4, b4;
 
+			//data - картинка с прозрачностью
+			//data2 - цвет
+			//копирование альфа-канала на картинку с цветом 
+			//data2[pix3=pix+3]=data[pix3];
+
 			var dataChanged = false;
 
 			switch (mode) {
 				case "normal" : 
-					//while (p--) {
-					//	data2[pix-=4] = data2[pix];
-					//	data2[pix1=pix+1] = data2[pix1];
-					//	data2[pix2=pix+2] = data2[pix2];
-					//}
+					while (p--) {
+						pix-=4;
+						pix1=pix+1;
+						pix2=pix+2;
+						data2[pix3=pix+3]=data[pix3];
+					}
+					dataChanged = true;
 					break;
 
 				case "multiply" : 
@@ -58,6 +74,7 @@ Pixastic.Actions.blend = {
 						data2[pix-=4] = data[pix] * data2[pix] / 255;
 						data2[pix1=pix+1] = data[pix1] * data2[pix1] / 255;
 						data2[pix2=pix+2] = data[pix2] * data2[pix2] / 255;
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -70,6 +87,7 @@ Pixastic.Actions.blend = {
 							data2[pix1] = g1;
 						if ((b1 = data[pix2=pix+2]) > data2[pix2])
 							data2[pix2] = b1;
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -82,7 +100,7 @@ Pixastic.Actions.blend = {
 							data2[pix1] = g1;
 						if ((b1 = data[pix2=pix+2]) < data2[pix2])
 							data2[pix2] = b1;
-
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -94,6 +112,7 @@ Pixastic.Actions.blend = {
 							data2[pix1] = g1;
 							data2[pix2] = b1;
 						}
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -105,6 +124,7 @@ Pixastic.Actions.blend = {
 							data2[pix1] = g1;
 							data2[pix2] = b1;
 						}
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -130,6 +150,7 @@ Pixastic.Actions.blend = {
 							data2[pix2] = 255;
 						else
 							data2[pix2] = b3;
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 
@@ -149,6 +170,7 @@ Pixastic.Actions.blend = {
 							data2[pix2] = 0;
 						else
 							data2[pix2] = (b3 - 255);
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -167,6 +189,7 @@ Pixastic.Actions.blend = {
 							data2[pix2] = -b3;
 						else
 							data2[pix2] = b3;
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -176,6 +199,7 @@ Pixastic.Actions.blend = {
 						data2[pix-=4] = (255 - ( ((255-data2[pix])*(255-data[pix])) >> 8));
 						data2[pix1=pix+1] = (255 - ( ((255-data2[pix1])*(255-data[pix1])) >> 8));
 						data2[pix2=pix+2] = (255 - ( ((255-data2[pix2])*(255-data[pix2])) >> 8));
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -186,6 +210,7 @@ Pixastic.Actions.blend = {
 						data2[pix-=4] = (r1 = data[pix]) - (r1 * div_2_255 - 1) * data2[pix];
 						data2[pix1=pix+1] = (g1 = data[pix1]) - (g1 * div_2_255 - 1) * data2[pix1];
 						data2[pix2=pix+2] = (b1 = data[pix2]) - (b1 * div_2_255 - 1) * data2[pix2];
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -207,7 +232,7 @@ Pixastic.Actions.blend = {
 							data2[pix2] = data2[pix2]*b1*div_2_255;
 						else
 							data2[pix2] = 255 - (255-data2[pix2])*(255-b1)*div_2_255;
-
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -229,7 +254,7 @@ Pixastic.Actions.blend = {
 							data2[pix2] = ((data2[pix2]>>1)+64) * b1 * div_2_255;
 						else
 							data2[pix2] = 255 - (191 - (data2[pix2]>>1)) * (255-b1) * div_2_255;
-
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -251,7 +276,7 @@ Pixastic.Actions.blend = {
 							data2[pix2] = data[pix2] * b2 * div_2_255;
 						else
 							data2[pix2] = 255 - (255-data[pix2]) * (255-b2) * div_2_255;
-
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -272,6 +297,7 @@ Pixastic.Actions.blend = {
 							data2[pix2] = 255;
 						else
 							data2[pix2] = b3;
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -292,6 +318,7 @@ Pixastic.Actions.blend = {
 							data2[pix2] = 0;
 						else
 							data2[pix2] = b3;
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -322,6 +349,7 @@ Pixastic.Actions.blend = {
 							else
 								data2[pix2] = b3;
 						}
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -390,6 +418,7 @@ Pixastic.Actions.blend = {
 							else
 								data2[pix2] = b3;
 						}
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -428,6 +457,7 @@ Pixastic.Actions.blend = {
 								data2[pix2] = r1;
 							else
 								data2[pix2] = r4;
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
@@ -463,6 +493,7 @@ Pixastic.Actions.blend = {
 							data2[pix2] = 0;
 						else
 							data2[pix2] = 255;
+						data2[pix3=pix+3]=data[pix3]; //прозрачность
 					}
 					dataChanged = true;
 					break;
